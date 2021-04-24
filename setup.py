@@ -3,14 +3,14 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 PACKAGE_NAME = 'px-user-identity-service'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
 URL = 'https://git.pantherx.org/development/applications/px-user-identity-service'
 
 LICENSE = ''
-DESCRIPTION = 'Provides access to device signing capabilities via REST API.'
+DESCRIPTION = 'User Identity API to support QR and BC login with device signature.'
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 

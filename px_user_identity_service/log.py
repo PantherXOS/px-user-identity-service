@@ -1,3 +1,4 @@
+'''User Identity Service Logs'''
 import logging
 from logging.handlers import RotatingFileHandler, SysLogHandler
 from platform import system
@@ -12,8 +13,6 @@ formatter_cli = logging.Formatter('%(levelname)s: %(message)s')
 log.setLevel(logging.DEBUG)
 
 if opsys == 'Linux':
-    import syslog
-
     # On Linux we log all events to file
     fh = RotatingFileHandler('/var/log/px-user-identity-service.log', maxBytes=10000, backupCount=1)
     fh.setLevel(logging.INFO)
