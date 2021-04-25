@@ -16,7 +16,7 @@ pip install .
 _Install these packages as root; Minimum python version: v3.7; Recommended: v3.8+_
 
 ```bash
-pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-device-identity.tgz
+pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-device-identity_latest.tgz
 pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-user-identity-service_latest.tgz
 ```
 
