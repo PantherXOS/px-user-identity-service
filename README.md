@@ -3,12 +3,19 @@
 - Provides signed response from `px-device-identity` via REST API
 - runs on `127.0.0.1:8010`
 
-## Setup
+## Setup on PantherX
+
+- (1) Setup, and register your device with `px-device-identity`
+- (2) Install `px-device-identity-service`
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install .
+guix package -i px-device-identity-service
+```
+
+- (3) Add service to system configuration
+
+```scheme
+(service px-user-identity-service-type)
 ```
 
 ### Install with pip package manager
@@ -16,8 +23,8 @@ pip install .
 _Install these packages as root; Minimum python version: v3.7; Recommended: v3.8+_
 
 ```bash
-pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-device-identity_latest.tgz
-pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-user-identity-service_latest.tgz
+pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
+pip3 install https://source.pantherx.org/px-user-identity-service_latest.tgz
 ```
 
 **Important**
@@ -90,6 +97,8 @@ $ curl http://localhost:8010/auth/bc/d179d4e7-96a3-417d-8bd1-35e6b7883080
 
 ## Use as Library
 
+_Note that this is only useful for applications intended to be run under `root`._
+
 ### QR Authentication
 
 ```python
@@ -122,10 +131,12 @@ Create a guix environment like so:
 
 ```bash
 guix environment \
---pure python \
---ad-hoc python-idna python-requests python-authlib-0.14.3 python-exitstatus-2.0.1 \
-python-pycryptodomex python-jose python-pyyaml-v5.3.1 python-shortuuid-v1.0.1 \
-python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil
+--pure \
+--ad-hoc python tpm2-tss tpm2-tss-engine
+python3 -m venv venv
+source venv/bin/activate
+pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
+pip3 install .
 ```
 
 Create a package to manually install `px-device-identity`:

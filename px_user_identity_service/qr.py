@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 
 class QRAuthentication:
     '''QR Authentication'''
+
     def __init__(self):
         device = Device()
         self.device_properties: 'DeviceProperties' = device.properties
@@ -36,7 +37,7 @@ class QRAuthentication:
         data = self._make_request(url, self.access_token)
         # auth_req_id, exp
         return data
-    
+
     def status(self, auth_req_id: str):
         '''Request user QR authentication grant status'''
         log.debug('=> Getting user auth request status')

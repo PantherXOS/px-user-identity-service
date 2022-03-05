@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 class CIBAAuthentication():
     '''CIBA Authentication'''
+
     def __init__(self):
         device = Device()
         self.device_properties: 'DeviceProperties' = device.properties
@@ -30,7 +31,8 @@ class CIBAAuthentication():
             'exp': exp,
             'binding_message': message
         }
-        signature_content = generate_signature_content_from_dict(initial_request, iat, exp)
+        signature_content = generate_signature_content_from_dict(
+            initial_request, iat, exp)
         signature = Sign(self.device_properties, signature_content).sign()
         result = "{}.{}".format(signature_content, signature)
         return result

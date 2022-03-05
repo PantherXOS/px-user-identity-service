@@ -27,9 +27,9 @@ class CORSComponent():
         resp.set_header('Access-Control-Allow-Origin', '127.0.0.1')
 
         if (req_succeeded
-                and req.method == 'OPTIONS'
-                and req.get_header('Access-Control-Request-Method')
-           ):
+                    and req.method == 'OPTIONS'
+                    and req.get_header('Access-Control-Request-Method')
+                ):
 
             allow = resp.get_header('Allow')
             resp.delete_header('Allow')
@@ -45,6 +45,7 @@ class CORSComponent():
                 ('Access-Control-Max-Age', '86400'),  # 24 hours
             ))
 
+
 class UserQRAuthRequestRessource():
     def on_get(self, req, resp):
         """Received user QR authentication request"""
@@ -56,16 +57,18 @@ class UserQRAuthRequestRessource():
             log.error(err)
             resp.status = falcon.HTTP_503
 
+
 class UserQRAuthStatusRessource():
     def on_get(self, req, resp, auth_req_id):
         """Received user QR authenication status request"""
 
         try:
             resp.media = QRAuthentication().status(auth_req_id)
-            resp.status = falcon.HTTP_202
+            resp.status = falcon.errors.HTTP_202
         except Exception as err:
             log.error(err)
             resp.status = falcon.HTTP_503
+
 
 class UserBCAuthRequestRessource():
     def on_post(self, req, resp):
@@ -77,7 +80,8 @@ class UserBCAuthRequestRessource():
             login_hint_token = req.media['login_hint_token']
             login_message = req.media.get('login_message', None)
         except ValueError:
-            raise falcon.HTTPBadRequest('Could not find required login_hint_token.')
+            raise falcon.HTTPBadRequest(
+                'Could not find required login_hint_token.')
 
         ciba = CIBAAuthentication()
         try:
@@ -92,6 +96,7 @@ class UserBCAuthRequestRessource():
             log.error(err)
             resp.status = falcon.HTTP_503
 
+
 class UserBCAuthStatusRessource():
     def on_get(self, req, resp, auth_req_id):
         """Received user BC authenication status request"""
@@ -102,7 +107,7 @@ class UserBCAuthStatusRessource():
 
             resp.media = data
             resp.status = falcon.HTTP_202
-        
+
         except HTTPError as err:
             if err.response.status_code == 400:
                 resp.media = {
@@ -113,6 +118,7 @@ class UserBCAuthStatusRessource():
         except Exception as err:
             log.error(err)
             resp.status = falcon.HTTP_503
+
 
 app = falcon.API(middleware=[CORSComponent()])
 
@@ -139,6 +145,7 @@ def main():
     is_superuser_or_quit()
 
     serve(app, listen='127.0.0.1:{}'.format(PORT))
+
 
 if __name__ == '__main__':
     main()
