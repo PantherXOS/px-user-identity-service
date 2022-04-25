@@ -1,4 +1,5 @@
 '''PantherX User Identity Service'''
+
 import logging
 import platform
 
@@ -21,7 +22,7 @@ version = pkg_resources.require("px-user-identity-service")[0].version
 
 
 class CORSComponent():
-    def process_response(self, req, resp, resource, req_succeeded):
+    def process_response(self, req: falcon.request.Request, resp: falcon.response.Response, resource, req_succeeded):
         '''Handles CORS'''
         # TODO: Consider changing to: 127.0.0.1
         resp.set_header('Access-Control-Allow-Origin', '127.0.0.1')
@@ -47,7 +48,7 @@ class CORSComponent():
 
 
 class UserQRAuthRequestRessource():
-    def on_get(self, req, resp):
+    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response):
         """Received user QR authentication request"""
 
         try:
@@ -59,7 +60,7 @@ class UserQRAuthRequestRessource():
 
 
 class UserQRAuthStatusRessource():
-    def on_get(self, req, resp, auth_req_id):
+    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response, auth_req_id):
         """Received user QR authenication status request"""
 
         try:
@@ -71,17 +72,15 @@ class UserQRAuthStatusRessource():
 
 
 class UserBCAuthRequestRessource():
-    def on_post(self, req, resp):
+    def on_post(self, req: falcon.request.Request, resp: falcon.response.Response):
         """Received user BC authentication request"""
 
-        login_hint_token = None
-        login_message = None
-        try:
-            login_hint_token = req.media['login_hint_token']
-            login_message = req.media.get('login_message', None)
-        except ValueError:
+        login_hint_token = req.media.get('login_hint_token', None)
+        login_message = req.media.get('login_message', None)
+
+        if login_hint_token is None:
             raise falcon.HTTPBadRequest(
-                'Could not find required login_hint_token.')
+                description='Could not find required login_hint_token.')
 
         ciba = CIBAAuthentication()
         try:
@@ -94,14 +93,18 @@ class UserBCAuthRequestRessource():
             resp.media = data
         except Exception as err:
             log.error(err)
+            resp.media = {
+                'message': err,
+            }
             resp.status = falcon.HTTP_503
 
 
 class UserBCAuthStatusRessource():
-    def on_get(self, req, resp, auth_req_id):
+    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response, auth_req_id):
         """Received user BC authenication status request"""
-
+        
         ciba = CIBAAuthentication()
+
         try:
             data = ciba.status(auth_req_id)
 
@@ -117,6 +120,9 @@ class UserBCAuthStatusRessource():
                 resp.status = falcon.HTTP_400
         except Exception as err:
             log.error(err)
+            resp.media = {
+                'message': err,
+            }
             resp.status = falcon.HTTP_503
 
 
@@ -139,12 +145,12 @@ def main():
     '''Runs PantherX User Identity Service'''
     log.info('------')
     log.info('Welcome to PantherX User Identity Service')
-    log.info('v{}'.format(version))
+    log.info(f"v{version}")
     log.info('------')
 
     is_superuser_or_quit()
 
-    serve(app, listen='127.0.0.1:{}'.format(PORT))
+    serve(app, listen=f"127.0.0.1:{PORT}")
 
 
 if __name__ == '__main__':

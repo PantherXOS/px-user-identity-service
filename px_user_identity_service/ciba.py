@@ -27,14 +27,14 @@ class CIBAAuthentication():
             'scope': 'openid contact profile',
             'acr_values': 'poll',
             'iss': self.device_properties.client_id,
-            'aud': "{}/oidc/bc-authorize".format(self.device_properties.host),
+            'aud': f"{self.device_properties.host}/oidc/bc-authorize",
             'exp': exp,
             'binding_message': message
         }
         signature_content = generate_signature_content_from_dict(
             initial_request, iat, exp)
         signature = Sign(self.device_properties, signature_content).sign()
-        result = "{}.{}".format(signature_content, signature)
+        result = f"{signature_content}.{signature}"
         return result
 
     def _auth_request_content(self, login_hint_token: str, message: str):
@@ -68,7 +68,7 @@ class CIBAAuthentication():
             res.raise_for_status()
             return res.json()
         except ConnectionError as err:
-            log.error("Connection to {} failed.".format(url))
+            log.error(f"Connection to {url} failed.")
             raise err
         except Exception as err:
             log.error(err)
@@ -83,12 +83,12 @@ class CIBAAuthentication():
             message: Optional login message
                      Recommended format 'Authorize login to ApplicationName'
         '''
-        log.debug('=> CIBA login request for {}'.format(login_hint_token))
+        log.debug(f"=> CIBA login request for {login_hint_token}")
         url = self.device_properties.host + '/oidc/bc-authorize'
         return self._make_request(url, self._auth_request_content(login_hint_token, message))
 
     def status(self, auth_req_id: str):
         '''CIBA (Backchannel) login status request'''
-        log.debug('=> CIBA login status request for ID {}'.format(auth_req_id))
+        log.debug(f"=> CIBA login status request for ID {auth_req_id}")
         url = self.device_properties.host + '/oidc/token'
         return self._make_request(url, self._status_request_content(auth_req_id))

@@ -3,16 +3,12 @@
 - Provides signed response from `px-device-identity` via REST API
 - runs on `127.0.0.1:8010`
 
-## Setup on PantherX
+## Setup
+
+### Setup on PantherX
 
 - (1) Setup, and register your device with `px-device-identity`
-- (2) Install `px-device-identity-service`
-
-```bash
-guix package -i px-device-identity-service
-```
-
-- (3) Add service to system configuration
+- (2) Add service to system configuration
 
 ```scheme
 (service px-user-identity-service-type)
@@ -23,7 +19,8 @@ guix package -i px-device-identity-service
 _Install these packages as root; Minimum python version: v3.7; Recommended: v3.8+_
 
 ```bash
-pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
+# You should first install px-device-identity
+# pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
 pip3 install https://source.pantherx.org/px-user-identity-service_latest.tgz
 ```
 
@@ -39,6 +36,11 @@ This service only runs under `root`.
 ```bash
 px-user-identity-service
 ```
+
+### Run as Service
+
+- PantherX OS: `herd start px-user-identity`
+- systemd based distributions like Debian, Centos, use the service from [here](docs/systemd-service.md)
 
 ## Use Rest API
 
@@ -130,9 +132,7 @@ Find logs at `/var/log/`
 Create a guix environment like so:
 
 ```bash
-guix environment \
---pure \
---ad-hoc python tpm2-tss tpm2-tss-engine
+guix shell --pure --check python tpm2-tss tpm2-tss-engine
 python3 -m venv venv
 source venv/bin/activate
 pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
