@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.0.5]
+
+### Fixed
+
+- Falcon: Call to deprecated function __init__(...). API class
+
 ## [0.0.4]
 
 ### Fixed

@@ -24,13 +24,12 @@ version = pkg_resources.require("px-user-identity-service")[0].version
 class CORSComponent():
     def process_response(self, req: falcon.request.Request, resp: falcon.response.Response, resource, req_succeeded):
         '''Handles CORS'''
-        # TODO: Consider changing to: 127.0.0.1
         resp.set_header('Access-Control-Allow-Origin', '127.0.0.1')
 
         if (req_succeeded
-                    and req.method == 'OPTIONS'
-                    and req.get_header('Access-Control-Request-Method')
-                ):
+			and req.method == 'OPTIONS'
+			and req.get_header('Access-Control-Request-Method')
+		):
 
             allow = resp.get_header('Allow')
             resp.delete_header('Allow')
@@ -126,7 +125,7 @@ class UserBCAuthStatusRessource():
             resp.status = falcon.HTTP_503
 
 
-app = falcon.API(middleware=[CORSComponent()])
+app = falcon.App(middleware=[CORSComponent()])
 
 auth_ressource_qr_login = UserQRAuthRequestRessource()
 auth_ressource_qr_status = UserQRAuthStatusRessource()

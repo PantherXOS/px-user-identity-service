@@ -135,7 +135,8 @@ Create a guix environment like so:
 guix shell --pure --check python tpm2-tss tpm2-tss-engine
 python3 -m venv venv
 source venv/bin/activate
-pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
+pip3 install ../px-device-identity
+# or pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
 pip3 install .
 ```
 

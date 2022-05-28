@@ -1,4 +1,4 @@
-This is primarily to ease running Bluetooth Client Manager Service on an unsupport operating system with systemd.
+This is primarily to ease running User Identity Service on an unsupport operating system with systemd.
 
 Create a service file:
 
