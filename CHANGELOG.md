@@ -4,11 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.0.6]
+
+### Fixed
+
+- falcon.errors' has no attribute 'HTTP_202'
+
+### Changed
+
+- Adapted to work better with Falcon 3.1.0
+
 ## [0.0.5]
 
 ### Fixed
 
-- Falcon: Call to deprecated function __init__(...). API class
+- Falcon: Call to deprecated function **init**(...). API class
 
 ## [0.0.4]
 

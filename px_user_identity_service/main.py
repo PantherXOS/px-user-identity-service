@@ -9,10 +9,10 @@ from px_device_identity import is_superuser_or_quit
 from requests.models import HTTPError
 from waitress import serve
 
-from .qr import QRAuthentication
-from .config import PORT
 from .ciba import CIBAAuthentication
+from .config import PORT
 from .log import *
+from .qr import QRAuthentication
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ version = pkg_resources.require("px-user-identity-service")[0].version
 
 
 class CORSComponent():
-    def process_response(self, req: falcon.request.Request, resp: falcon.response.Response, resource, req_succeeded):
+    def process_response(self, req: falcon.Request, resp: falcon.Response, resource, req_succeeded):
         '''Handles CORS'''
         resp.set_header('Access-Control-Allow-Origin', '127.0.0.1')
 
@@ -47,39 +47,38 @@ class CORSComponent():
 
 
 class UserQRAuthRequestRessource():
-    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response):
+    def on_get(self, req: falcon.Request, resp: falcon.Response):
         """Received user QR authentication request"""
 
         try:
             resp.media = QRAuthentication().login()
-            resp.status = falcon.HTTP_202
+            resp.status = falcon.code_to_http_status(202)
         except Exception as err:
             log.error(err)
-            resp.status = falcon.HTTP_503
+            raise falcon.HTTPError(503, 'Service Unavailable', err)
 
 
 class UserQRAuthStatusRessource():
-    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response, auth_req_id):
+    def on_get(self, req: falcon.Request, resp: falcon.Response, auth_req_id):
         """Received user QR authenication status request"""
 
         try:
             resp.media = QRAuthentication().status(auth_req_id)
-            resp.status = falcon.errors.HTTP_202
+            resp.status = falcon.code_to_http_status(202)
         except Exception as err:
             log.error(err)
-            resp.status = falcon.HTTP_503
+            raise falcon.HTTPError(503, 'Service Unavailable', err)
 
 
 class UserBCAuthRequestRessource():
-    def on_post(self, req: falcon.request.Request, resp: falcon.response.Response):
+    def on_post(self, req: falcon.Request, resp: falcon.Response):
         """Received user BC authentication request"""
 
         login_hint_token = req.media.get('login_hint_token', None)
         login_message = req.media.get('login_message', None)
 
         if login_hint_token is None:
-            raise falcon.HTTPBadRequest(
-                description='Could not find required login_hint_token.')
+            raise falcon.HTTPError(400, 'Bad request', 'Could not find required login_hint_token.')
 
         ciba = CIBAAuthentication()
         try:
@@ -88,18 +87,15 @@ class UserBCAuthRequestRessource():
                 data = ciba.login(login_hint_token)
             else:
                 data = ciba.login(login_hint_token, login_message)
-            resp.status = falcon.HTTP_202
+            resp.status = falcon.code_to_http_status(202)
             resp.media = data
         except Exception as err:
             log.error(err)
-            resp.media = {
-                'message': err,
-            }
-            resp.status = falcon.HTTP_503
+            raise falcon.HTTPError(503, 'Service Unavailable', err)
 
 
 class UserBCAuthStatusRessource():
-    def on_get(self, req: falcon.request.Request, resp: falcon.response.Response, auth_req_id):
+    def on_get(self, req: falcon.Request, resp: falcon.Response, auth_req_id):
         """Received user BC authenication status request"""
         
         ciba = CIBAAuthentication()
@@ -108,7 +104,7 @@ class UserBCAuthStatusRessource():
             data = ciba.status(auth_req_id)
 
             resp.media = data
-            resp.status = falcon.HTTP_202
+            resp.status = falcon.code_to_http_status(202)
 
         except HTTPError as err:
             if err.response.status_code == 400:
@@ -116,13 +112,10 @@ class UserBCAuthStatusRessource():
                     'message': err.response.json()['error_description'],
                     'status': 'pending'
                 }
-                resp.status = falcon.HTTP_400
+                resp.status = falcon.code_to_http_status(400)
         except Exception as err:
             log.error(err)
-            resp.media = {
-                'message': err,
-            }
-            resp.status = falcon.HTTP_503
+            raise falcon.HTTPError(503, 'Service Unavailable', err)
 
 
 app = falcon.App(middleware=[CORSComponent()])
@@ -143,8 +136,7 @@ app.add_route('/auth/bc/{auth_req_id}', auth_ressource_bc_status)
 def main():
     '''Runs PantherX User Identity Service'''
     log.info('------')
-    log.info('Welcome to PantherX User Identity Service')
-    log.info(f"v{version}")
+    log.info(f"PantherX User Identity Service v{version}")
     log.info('------')
 
     is_superuser_or_quit()
