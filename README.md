@@ -97,6 +97,18 @@ $ curl http://localhost:8010/auth/bc/d179d4e7-96a3-417d-8bd1-35e6b7883080
 {"message": "authorization_pending", "status": "pending"}
 ```
 
+### Refresh Session
+
+If you have a access token, it's easy to refresh the session:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+-d '{"access_token": "AjtjNBGeCHPfrExxMvqjxelcUFaR5BnpshEVwBF21hj", "refresh_token": "Bbx0DloRlM4Khk1FCn7CVrXEHcFtC1ccoJUB1gDnEOp"}' \
+http://localhost:8010/auth/refresh
+
+{"access_token": "qYwGK-1X_WSuUwBDelCkw_P8Vjeqo5l3XdzvYHqdV1n", "expires_in": 3600, "refresh_token": "5v_lUzHjsBYsGe0P7t_dj-B8LznalJTwciE7vLLKpy1", "scope": "offline_access", "token_type": "Bearer"}
+```
+
 ## Use as Library
 
 _Note that this is only useful for applications intended to be run under `root`._
@@ -121,6 +133,15 @@ ciba = CIBAAuthentication()
 login_res = ciba.login(login_hint_token, login_message)
 # Status
 status_res = ciba.status(login_res['auth_req_id])
+```
+
+### Common Authentication (Refresh)
+
+```python
+from px_user_identity_service import CommonAuthentication
+auth = CommonAuthentication()
+# Refresh
+res = auth.refresh('Bbx0DloRlM4Khk1FCn7CVrXEHcFtC1ccoJUB1gDnEOp')
 ```
 
 ## Troubleshooting

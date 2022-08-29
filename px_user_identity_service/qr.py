@@ -22,6 +22,7 @@ class QRAuthentication:
             res = get(url, headers={
                 'authorization': 'Bearer {}'.format(access_token)
             })
+            res.raise_for_status()
             return res.json()
         except ConnectionError as err:
             log.error("Connection to {} failed.".format(url))

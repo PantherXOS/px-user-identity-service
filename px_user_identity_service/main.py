@@ -9,6 +9,7 @@ from px_device_identity import is_superuser_or_quit
 from requests.models import HTTPError
 from waitress import serve
 
+from .common import CommonAuthentication
 from .ciba import CIBAAuthentication
 from .config import PORT
 from .log import *
@@ -27,9 +28,9 @@ class CORSComponent():
         resp.set_header('Access-Control-Allow-Origin', '127.0.0.1')
 
         if (req_succeeded
-			and req.method == 'OPTIONS'
-			and req.get_header('Access-Control-Request-Method')
-		):
+            and req.method == 'OPTIONS'
+            and req.get_header('Access-Control-Request-Method')
+        ):
 
             allow = resp.get_header('Allow')
             resp.delete_header('Allow')
@@ -55,7 +56,7 @@ class UserQRAuthRequestRessource():
             resp.status = falcon.code_to_http_status(202)
         except Exception as err:
             log.error(err)
-            raise falcon.HTTPError(503, 'Service Unavailable', err)
+            raise falcon.HTTPError(400, 'Client error', err)
 
 
 class UserQRAuthStatusRessource():
@@ -67,7 +68,28 @@ class UserQRAuthStatusRessource():
             resp.status = falcon.code_to_http_status(202)
         except Exception as err:
             log.error(err)
-            raise falcon.HTTPError(503, 'Service Unavailable', err)
+            raise falcon.HTTPError(400, 'Client error', err)
+
+
+class UserCommonAuthRefreshRessource():
+    def on_post(self, req: falcon.Request, resp: falcon.Response):
+        """Received user QR authenication status request"""
+
+        access_token = req.media.get('access_token', None)
+        refresh_token = req.media.get('refresh_token', None)
+        grant_type = 'refresh_token'
+
+        if access_token is None or refresh_token is None:
+            raise falcon.HTTPError(400, 'Bad request', 'The access_token and refresh_token are required.')
+        
+        auth = CommonAuthentication()
+        try:
+            data = auth.refresh(refresh_token, grant_type)
+            resp.status = falcon.code_to_http_status(200)
+            resp.media = data
+        except Exception as err:
+            log.error(err)
+            raise falcon.HTTPError(400, 'Client error', 'Could not refresh token.')
 
 
 class UserBCAuthRequestRessource():
@@ -78,7 +100,7 @@ class UserBCAuthRequestRessource():
         login_message = req.media.get('login_message', None)
 
         if login_hint_token is None:
-            raise falcon.HTTPError(400, 'Bad request', 'Could not find required login_hint_token.')
+            raise falcon.HTTPError(400, 'Bad request', 'The login_hint_token is required..')
 
         ciba = CIBAAuthentication()
         try:
@@ -91,7 +113,7 @@ class UserBCAuthRequestRessource():
             resp.media = data
         except Exception as err:
             log.error(err)
-            raise falcon.HTTPError(503, 'Service Unavailable', err)
+            raise falcon.HTTPError(400, 'Client error', err)
 
 
 class UserBCAuthStatusRessource():
@@ -115,7 +137,7 @@ class UserBCAuthStatusRessource():
                 resp.status = falcon.code_to_http_status(400)
         except Exception as err:
             log.error(err)
-            raise falcon.HTTPError(503, 'Service Unavailable', err)
+            raise falcon.HTTPError(400, 'Client error', err)
 
 
 app = falcon.App(middleware=[CORSComponent()])
@@ -124,6 +146,7 @@ auth_ressource_qr_login = UserQRAuthRequestRessource()
 auth_ressource_qr_status = UserQRAuthStatusRessource()
 auth_ressource_bc_login = UserBCAuthRequestRessource()
 auth_ressource_bc_status = UserBCAuthStatusRessource()
+auth_ressource_common_refresh = UserCommonAuthRefreshRessource()
 
 app.req_options.strip_url_path_trailing_slash = True
 
@@ -131,6 +154,7 @@ app.add_route('/auth/qr', auth_ressource_qr_login)
 app.add_route('/auth/qr/{auth_req_id}', auth_ressource_qr_status)
 app.add_route('/auth/bc', auth_ressource_bc_login)
 app.add_route('/auth/bc/{auth_req_id}', auth_ressource_bc_status)
+app.add_route('/auth/refresh', auth_ressource_common_refresh)
 
 
 def main():
