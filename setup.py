@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.7'
+VERSION = '0.1.0'
 PACKAGE_NAME = 'px-user-identity-service'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
@@ -16,9 +16,10 @@ LONG_DESC_TYPE = "text/markdown"
 
 INSTALL_REQUIRES = [
     'requests',
-    'falcon',
+    'flask',
     'px-device-identity',
-    'waitress'
+    'waitress',
+    'werkzeug'
 ]
 
 setup(
